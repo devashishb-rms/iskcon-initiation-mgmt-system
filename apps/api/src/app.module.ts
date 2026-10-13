@@ -18,6 +18,12 @@ import { AuditModule } from './modules/audit';
 import { CandidatesModule } from './modules/candidates';
 import { ChecklistModule } from './modules/checklist';
 import { ViewsModule } from './modules/views';
+import { DocumentsModule } from './modules/documents';
+import { RecommendationsModule } from './modules/recommendations';
+import { CeremoniesModule } from './modules/ceremonies';
+import { RegisterModule } from './modules/register';
+import { NotificationsModule } from './modules/notifications';
+import { ImportsModule } from './modules/imports';
 import { GurusModule } from './modules/gurus';
 import { IdentityModule } from './modules/identity';
 import { RulesModule } from './modules/rules';
@@ -61,6 +67,12 @@ import { HealthModule } from './platform/health/health.module';
     RulesModule,
     CandidatesModule,
     ChecklistModule,
+    DocumentsModule,
+    RecommendationsModule,
+    CeremoniesModule,
+    RegisterModule,
+    NotificationsModule,
+    ImportsModule,
     ViewsModule,
   ],
   providers: [

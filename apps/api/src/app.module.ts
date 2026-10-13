@@ -14,7 +14,9 @@ import { TenancyModule } from './platform/tenancy/tenancy.module';
 import { ClockModule } from './platform/clock/clock.module';
 import { SecurityModule } from './platform/security/security.module';
 import { AuditModule } from './modules/audit';
+import { GurusModule } from './modules/gurus';
 import { IdentityModule } from './modules/identity';
+import { RulesModule } from './modules/rules';
 import { HealthModule } from './platform/health/health.module';
 
 /**
@@ -50,6 +52,8 @@ import { HealthModule } from './platform/health/health.module';
     HealthModule,
     AuditModule,
     IdentityModule,
+    GurusModule,
+    RulesModule,
   ],
   providers: [
     {

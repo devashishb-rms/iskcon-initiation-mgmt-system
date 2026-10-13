@@ -20,6 +20,15 @@ single-temple release; each is small and independent.
 * The recommendation letter and cover sheet are English only. Bengali and Hindi text must be written or reviewed by
   the temple before it is put on a letter that carries the president's name.
 
+## Web app
+
+* **Next-step wording for staff.** The "next step for this file" card shows the candidate's wording ("Upload your
+  Disciples Course certificate.") to every role. Staff should see third-person wording; needs a second set of
+  next-step codes (or a `perspective` parameter) from the rules engine.
+* **Browser tests in CI.** The Playwright suite runs against a live API and database; add a CI job with a Postgres
+  service once the runner image has Chromium.
+* **Bengali and Hindi review.** Translations were written for the devotional register but need a temple reviewer.
+
 ## Security and operations
 
 * **Malware scanning.** `VirusScanner` is a no-op port. Plug in ClamAV (clamd over TCP) when hosting allows; the

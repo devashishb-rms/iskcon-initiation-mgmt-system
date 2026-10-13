@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": ".",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "strictPropertyInitialization": false,
+    "incremental": true,
+    "types": [
+      "node",
+      "jest"
+    ],
+    "isolatedModules": true
+  },
+  "include": [
+    "src",
+    "test",
+    "drizzle.config.ts"
+  ]
+}

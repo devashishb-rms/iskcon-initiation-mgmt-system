@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.next/
+coverage/
+.turbo/
+*.log
+.env
+.env.local
+storage/
+test-results/
+playwright-report/
+.DS_Store

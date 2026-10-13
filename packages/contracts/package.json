@@ -1,0 +1,22 @@
+{
+  "name": "@iskcon/contracts",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Request and response schemas shared by the API and the web app. One definition, validated on the server, typed in the browser.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint src",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@iskcon/rules-engine": "workspace:*",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "vitest": "^2.1.8"
+  }
+}

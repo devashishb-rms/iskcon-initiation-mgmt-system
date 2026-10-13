@@ -1,0 +1,26 @@
+{
+  "name": "iskcon-initiation-platform",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Initiation (diksha) management system for ISKCON temples. Tenant-aware modular monolith.",
+  "packageManager": "pnpm@10.28.0",
+  "engines": { "node": ">=22.13.0" },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev --parallel",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check:boundaries": "node scripts/check-module-boundaries.mjs",
+    "db:up": "docker compose up -d postgres minio",
+    "db:migrate": "pnpm --filter @iskcon/api prisma:migrate",
+    "db:seed": "pnpm --filter @iskcon/api seed"
+  },
+  "devDependencies": {
+    "prettier": "^3.3.3",
+    "turbo": "^2.3.0",
+    "typescript": "~5.6.3"
+  }
+}

@@ -29,4 +29,15 @@ export const importPreview = z.object({
   results: z.array(importRowResult),
 });
 export type ImportPreview = z.infer<typeof importPreview>;
-export const importCommitResult = z.object({ created: z.number().int(), skipped: z.number().int() });
+export const importCommitResult = z.object({
+  created: z.number().int(),
+  skipped: z.number().int(),
+  skippedRows: z.array(
+    z.object({ line: z.number().int(), code: z.string(), params: z.record(z.union([z.string(), z.number()])).optional() }),
+  ),
+});
+export type ImportCommitResult = z.infer<typeof importCommitResult>;
+
+/** The person running the import confirms every listed person agreed to be stored (NFR-3). */
+export const commitImportBody = z.object({ consent: z.object({ accepted: z.literal(true), version: z.string().max(80) }) });
+export type CommitImportBody = z.infer<typeof commitImportBody>;

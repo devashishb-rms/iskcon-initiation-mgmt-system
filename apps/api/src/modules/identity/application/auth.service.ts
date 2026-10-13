@@ -25,7 +25,7 @@ export class AuthService {
   /** Verifies the code and opens a session. Roles that need a second factor start unverified. */
   async signIn(identifier: string, code: string): Promise<{ token: string; session: SessionResponse }> {
     const user = await this.otp.verify(identifier, code);
-    const { token, session } = await this.uow.run(async () => {
+    const { token } = await this.uow.run(async () => {
       const issued = await this.sessions.issue(user, !needsMfa(user.roles));
       // The actor of this audit line is the person who just signed in.
       this.ctx.setUser({

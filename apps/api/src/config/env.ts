@@ -46,6 +46,8 @@ export const envSchema = z.object({
   S3_REGION: z.string().default('ap-south-1'),
   S3_ENDPOINT: z.string().optional(),
   S3_FORCE_PATH_STYLE: bool.default('false'),
+  /** Server-side encryption for uploads. Default: AES256 on AWS, none when S3_ENDPOINT is set (MinIO without KMS refuses the header). */
+  S3_SSE: z.enum(['AES256', 'aws:kms', 'none']).optional(),
   S3_ACCESS_KEY_ID: z.string().optional(),
   S3_SECRET_ACCESS_KEY: z.string().optional(),
   MAX_UPLOAD_MB: z.coerce.number().int().min(1).max(50).default(10),

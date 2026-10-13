@@ -4,7 +4,11 @@ import { ceremonyStatus, stage, track } from './enums';
 
 export const createCeremonyBody = z.object({ guruId: z.string().uuid(), track, venue: text(200), date: isoDate });
 export const attachAttendeeBody = z.object({ applicationId: z.string().uuid() });
-export const markAttendanceBody = z.object({ present: z.boolean() });
+export const markAttendanceBody = z.object({
+  present: z.boolean(),
+  /** The name the person was given, if the temple already knows it. It can also be given when the ceremony is completed. */
+  spiritualName: text(120).optional(),
+});
 export const completeCeremonyBody = z.object({
   /** Spiritual name per attendee who was present. Required for each present attendee. */
   spiritualNames: z.record(z.string().uuid(), text(120)),

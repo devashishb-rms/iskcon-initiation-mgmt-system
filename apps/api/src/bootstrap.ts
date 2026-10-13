@@ -23,7 +23,7 @@ export function configureApp(app: INestApplication): void {
   app.useLogger(app.get(PinoLogger));
   app.use(helmet({ contentSecurityPolicy: false }));
   app.use(cookieParser());
-  if (env.CORS_ORIGIN) app.enableCors({ origin: env.CORS_ORIGIN.split(','), credentials: true });
+  if (env.CORS_ORIGIN) app.enableCors({ origin: env.CORS_ORIGIN.split(','), credentials: true, exposedHeaders: ['X-Unread-Count', 'Content-Disposition'] });
   app.enableShutdownHooks();
   new Logger('Bootstrap').log(`Configured for ${env.NODE_ENV}`);
 }

@@ -15,10 +15,13 @@ export class EventBus {
   ) {}
 
   async publish<P extends Record<string, unknown>>(type: string, payload: P): Promise<void> {
+    // The person who caused the event travels with it, so subscribers can leave them out of
+    // "someone did X" messages about their own action. A payload may set `actorId` itself.
+    const actorId = this.ctx.peek()?.user?.id;
     await this.db.client.insert(outboxEvents).values({
       tenantId: this.ctx.tenantId,
       type,
-      payload,
+      payload: actorId && payload.actorId === undefined ? { ...payload, actorId } : payload,
     });
   }
 }

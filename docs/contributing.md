@@ -30,7 +30,9 @@ modules/<name>/
    `@iskcon/contracts`. **Contracts are frozen for you**: if you need a change, write the request in
    your hand-off notes instead of editing `packages/contracts`.
 6. Every handler runs inside `this.uow.run(() => service.method(...))`. Repositories use
-   `DbService.client`, which is the active transaction. Never open your own transaction.
+   `DbService.client`, which is the active transaction. Never open your own transaction. (One deliberate
+   exception: `POST /imports/:id/commit` creates each person in a transaction of their own, so one bad row
+   cannot undo the good ones.)
 7. Every query filters by `tenantId` (`this.ctx.tenantId`). Every insert sets it. Foreign keys are
    composite `(tenant_id, id)`.
 8. Changes write an audit line (`AuditService.record`) in the same transaction. Decisions that other

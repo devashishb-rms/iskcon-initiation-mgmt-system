@@ -100,6 +100,7 @@ export class RequestContextMiddleware implements NestMiddleware {
 })
 export class TenancyModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {
-    consumer.apply(RequestContextMiddleware).forRoutes('*path');
+    // Probes must answer before any temple exists (a fresh deployment), so they skip tenant resolution.
+    consumer.apply(RequestContextMiddleware).exclude('healthz', 'readyz').forRoutes('*path');
   }
 }

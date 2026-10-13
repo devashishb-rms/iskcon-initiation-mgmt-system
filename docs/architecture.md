@@ -67,20 +67,35 @@ likely first two; both already sit behind ports and communicate by outbox events
     views           read models that compose several modules (application detail, queue, lists, timeline)
 ```
 
-Dependencies point one way:
+Dependencies point one way (arrows mean "imports"):
 
 ```
- views ──► candidates ──► checklist ──► rules · documents · recommendations
-             ▲                              │
-             └── ApplicationAccess / ApplicationWorkflow (ports in shared/) ◄── documents, recommendations,
-                                                                                 ceremonies, notifications
- ceremonies ──► register          imports ──► candidates · gurus · identity        notifications ◄── events
+ views ──► candidates · checklist · gurus · identity           (top: composes screens, owns no tables)
+ checklist ──► rules                                           (runs the rules engine)
+ recommendations ──► checklist · candidates ports              ceremonies ──► register
+ documents ──► candidates ports                                imports ──► candidates · gurus · identity
+ notifications ◄── domain events (outbox)                      candidates ──► gurus · identity · audit
+ rules ──► gurus · identity · audit
 ```
 
-`documents`, `recommendations` and `ceremonies` need "may this caller see application X" and "move X to
-the next stage" from `candidates`, while `candidates` needs their data for the checklist. To avoid a cycle
-they depend on the abstract classes in `shared/application-ports.ts`, which `candidates` implements
-(dependency inversion).
+Three devices keep this a tree with no cycles, even though the modules need each other's data:
+
+1. **Ports in `shared/`** (`ApplicationAccess`, `ApplicationWorkflow`). `candidates` implements them;
+   `documents`, `recommendations`, `ceremonies` and `notifications` depend on the abstract classes only.
+   "May this caller see application X" and "move X to the next stage" therefore live in one place.
+2. **Facets** (`platform/facets`). A module that owns part of "the application file" (documents, exceptions,
+   the president's decision, the guru's answer, the register entry) contributes it with an
+   `@ApplicationFacetProvider()` class: evidence for the checklist, parts of the detail screen, timeline
+   entries, and the actions it offers the caller. `checklist` and `views` ask every facet; they never import
+   the modules that own those tables, and a new module adds to the file without editing the composer
+   (open/closed).
+3. **Events** (outbox). Notifications and any future reporting react to what happened without the publisher
+   knowing they exist.
+
+`views` also hosts the screens' write endpoints that return the refreshed application (`PATCH facts`,
+`PATCH guru`, `advance`, `submit`): a controller may compose, but it only calls the module that owns the data
+and runs inside one transaction. The president's decision and the guru's answer return a small receipt and
+the web app re-reads the application.
 
 ### Rules that CI enforces (`pnpm check:boundaries`)
 
@@ -119,8 +134,8 @@ SOLID in practice:
 ## 5. Data
 
 * PostgreSQL 16. Drizzle ORM (typed SQL, no code generation step, no native engine binary). Migrations are
-  plain SQL in `apps/api/drizzle/`, generated from `src/database/schema/` and applied by
-  `pnpm --filter @iskcon/api prisma:migrate` (alias kept for the script name; it runs `src/database/migrate.ts`).
+  plain SQL in `apps/api/drizzle/`, generated from `src/database/schema/` (`pnpm -F @iskcon/api db:generate`) and
+  applied by `pnpm db:migrate` or on start (`RUN_MIGRATIONS_ON_BOOT`). Why Drizzle and not Prisma: ADR-0002.
 * Every table has `tenant_id`, a foreign key to `tenants`. Child tables use **composite foreign keys**
   `(tenant_id, parent_id)` so a row can never point at another temple's parent.
 * Personal details exist only on `users` and `candidates`. No column for Aadhaar, caste, varna, race,

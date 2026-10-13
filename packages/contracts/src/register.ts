@@ -6,6 +6,9 @@ export const registerQuery = pageQuery.extend({
   q: z.string().trim().max(80).optional(),
   guruId: z.string().uuid().optional(),
   track: track.optional(),
+  /** Initiation date range, inclusive (YYYY-MM-DD). */
+  from: isoDate.optional(),
+  to: isoDate.optional(),
 });
 export type RegisterQuery = z.infer<typeof registerQuery>;
 

@@ -1,0 +1,3 @@
+Noto Sans, Noto Sans Bengali and Noto Sans Devanagari (regular and bold) by the Noto Project Authors
+(https://github.com/notofonts), distributed under the SIL Open Font License 1.1 (LICENSE-OFL.txt).
+Used by src/common/pdf/pdf.ts so that PDFs can show names in Latin, Bengali and Devanagari scripts.

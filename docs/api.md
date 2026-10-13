@@ -50,15 +50,16 @@ to permissions). "own/assigned" means the caller is checked against the specific
 | --- | --- | --- |
 | GET `/applications/:id/documents` | → `DocumentDto[]` | `document:read` + visible |
 | POST `/applications/:id/documents` | multipart: `file`, field `type` (DocumentType) → `DocumentDto` | `document:upload` + visible |
-| GET `/documents/:id/content` | → file stream, `Content-Disposition: inline` | `document:read` + visible |
+| GET `/documents/:id/content` | → file stream, `Content-Disposition: inline` (preview) | `document:read` + visible |
+| GET `/documents/:id/file` | → same file, `Content-Disposition: attachment` (download) | `document:read` + visible |
 | DELETE `/documents/:id` | → 204 (soft delete, audited; only the uploader or an administrator) | `document:upload` |
 | POST `/applications/:id/exceptions` | `recordExceptionBody` → `ExceptionDto` | `exception:record` |
 | DELETE `/applications/:id/exceptions/:ruleId` | → 204 | `exception:record` |
-| POST `/applications/:id/recommendation` | `decideBody` → `ApplicationDetail`; APPROVE needs a clean checklist or exceptions, else 422 `APPROVAL_BLOCKED` | `recommendation:decide` |
+| POST `/applications/:id/recommendation` | `decideBody` → receipt `{applicationId, recommendationId, decision, stage, status}` (re-read the application); APPROVE needs a clean checklist or exceptions, else 422 `APPROVAL_BLOCKED` | `recommendation:decide` |
 | GET `/applications/:id/recommendation/letter` | → PDF | `recommendation:letter` (after approval) |
 | GET `/applications/:id/package/preview` | → `PackagePreview` | `package:export` |
 | POST `/applications/:id/package` | → zip (cover PDF + documents); logs what was missing | `package:export` |
-| POST `/applications/:id/guru-response` | `recordGuruResponseBody` → `ApplicationDetail` (ACCEPTED keeps RECOMMENDED; WAIT returns to PREPARING; DECLINED closes) | `guru-response:record` |
+| POST `/applications/:id/guru-response` | `recordGuruResponseBody` → receipt `{applicationId, responseId, response, stage, status}` (ACCEPTED keeps RECOMMENDED; WAIT returns to PREPARING; DECLINED closes) | `guru-response:record` |
 
 ## Rule sets
 
@@ -99,3 +100,41 @@ to permissions). "own/assigned" means the caller is checked against the specific
 | POST `/imports/:id/commit` | → `{created, skipped}` | `import:run` |
 | GET `/audit` | `auditQuery` → `Page<AuditEntryDto>` | `audit:read` |
 | GET `/healthz`, `/readyz` | → `{status:'ok'}` | public |
+
+## Behaviours and codes the web app must handle
+
+Status codes: 201 for creations and for `POST /imports` and `/imports/:id/commit`; 204 for deletes and
+mark-as-read; 200 for the package zip. A wrong stage or a closed application is **409 `CONFLICT`** with
+`params.stage` or `params.status`; a refused transition inside the stage machine is **422
+`INVALID_STAGE_TRANSITION`**. Uploads: **413 `FILE_TOO_LARGE`**, **415 `FILE_TYPE_NOT_ALLOWED`** (decided by the
+file's first bytes, not its name), 400 `FILE_REQUIRED`. Imports: 400 `TOO_MANY_ROWS`, 409 `ALREADY_COMMITTED`,
+409 `EXPIRED`, 400 `CONSENT_REQUIRED`. Notifications: `GET /notifications` sets `X-Unread-Count` (exposed to
+browsers by CORS); another person's notification id is a 404.
+
+`APPROVAL_BLOCKED` carries `params.blockers` (comma-separated rule ids, for example `"R-2,R-4"`) or
+`params.reason: "GURU_REQUIRED"`. Exceptions: R-5 cannot be excepted (400 field error `RULE_NOT_EXCEPTABLE`);
+recording the same exception again replaces its reason. A ceremony cannot complete with nobody present
+(`NOBODY_PRESENT`); a register correction that changes nothing is 422 `UNCHANGED`. Exports are capped at 20,000
+rows.
+
+Field-error codes (`errors[].code`, translate each): `SPIRITUAL_NAME_REQUIRED`, `NOBODY_PRESENT`,
+`DATE_IN_FUTURE`, `ATTENDEE_NOT_RECOMMENDED`, `UNCHANGED`, `DATE_RANGE_INVALID`, `REASON_REQUIRED`,
+`RULE_NOT_EXCEPTABLE`, `SHELTER_DATE_REQUIRED`, `GURU_REQUIRED`, `NOT_A_MENTOR`, `CONSENT_REQUIRED`,
+`FILE_REQUIRED`, `PHONE_INVALID`. Ceremony eligibility reasons: `NOT_OPEN`, `STAGE_NOT_RECOMMENDED`,
+`TRACK_MISMATCH`, `GURU_MISMATCH`, `GURU_NOT_ACCEPTED`, `ALREADY_ATTACHED`.
+
+Timeline summary codes: `timeline.stage` (`from`, `to`, optional `reason`), `timeline.facts` (`fields`),
+`timeline.note.monthly|readiness|message|send_back`, `timeline.document.uploaded` (`type`, `filename`),
+`timeline.document.removed` (`type`), `timeline.exception.recorded` (`ruleId`, `reason`),
+`timeline.exception.removed` (`ruleId`), `timeline.recommendation.approve|send_back|decline` (`reason`),
+`timeline.guruResponse.accepted|wait|declined` (`reason`), `timeline.package.exported` (`missing`, staff only),
+`timeline.register` (`date`, `spiritualName`). Notification message codes are listed in
+`apps/api/src/modules/notifications/CODES.md` and exported as `MESSAGE_CODES` from `@iskcon/contracts`; import
+row messages are in `apps/api/src/modules/imports/CODES.md`. Checklist labels, details and next steps are the
+codes in `packages/rules-engine/src`.
+
+Notes on individual routes: `GET /ceremonies/:id/eligible` returns `[{applicationId, candidateName}]`.
+`PATCH /ceremonies/:id/attendees/:applicationId` accepts an optional `spiritualName` besides `present`.
+`GET /register` and the exports accept `from` and `to` (inclusive initiation dates). `DELETE /documents/:id` is a
+soft delete: 403 unless the caller is the uploader or an administrator, 409 once the file is at RECOMMENDED or later.
+`POST /imports/:id/commit` takes `{consent: {accepted: true, version}}` and answers `{created, skipped, skippedRows}`.

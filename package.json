@@ -4,7 +4,9 @@
   "version": "1.0.0",
   "description": "Initiation (diksha) management system for ISKCON temples. Tenant-aware modular monolith.",
   "packageManager": "pnpm@10.28.0",
-  "engines": { "node": ">=22.13.0" },
+  "engines": {
+    "node": ">=22.13.0"
+  },
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev --parallel",
@@ -15,12 +17,15 @@
     "format:check": "prettier --check .",
     "check:boundaries": "node scripts/check-module-boundaries.mjs",
     "db:up": "docker compose up -d postgres minio",
-    "db:migrate": "pnpm --filter @iskcon/api prisma:migrate",
+    "db:migrate": "pnpm --filter @iskcon/api migrate",
     "db:seed": "pnpm --filter @iskcon/api seed"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "eslint": "^9.39.5",
     "prettier": "^3.3.3",
     "turbo": "^2.3.0",
-    "typescript": "~5.6.3"
+    "typescript": "~5.6.3",
+    "typescript-eslint": "^8.71.2"
   }
 }

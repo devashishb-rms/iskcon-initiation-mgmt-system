@@ -44,7 +44,8 @@
     "e2e/**/*.ts",
     "next-env.d.ts",
     "src/**/*.ts",
-    "src/**/*.tsx"
+    "src/**/*.tsx",
+    ".next-standalone/types/**/*.ts"
   ],
   "exclude": [
     "node_modules"

@@ -48,7 +48,20 @@ function DetailView({ id }: { id: string }) {
   };
   const attach = useMutation({ mutationFn: (appId: string) => ceremoniesApi.attach(id, appId), onSuccess: sync });
   const detach = useMutation({ mutationFn: (appId: string) => ceremoniesApi.detach(id, appId), onSuccess: sync });
-  const mark = useMutation({ mutationFn: (v: { appId: string; present: boolean }) => ceremoniesApi.markAttendance(id, v.appId, v.present), onSuccess: sync });
+  // The tick shows at once (React state, so it is committed in the same event); the server's answer replaces it,
+  // and a failure drops it so the box returns to what the server holds.
+  const [shown, setShown] = useState<Record<string, boolean>>({});
+  const settle = (appId: string) =>
+    setShown((m) => {
+      const { [appId]: _gone, ...rest } = m;
+      return rest;
+    });
+  const mark = useMutation({
+    mutationFn: (v: { appId: string; present: boolean }) => ceremoniesApi.markAttendance(id, v.appId, v.present),
+    onMutate: (v) => setShown((m) => ({ ...m, [v.appId]: v.present })),
+    onSuccess: sync,
+    onSettled: (_d, _e, v) => settle(v.appId),
+  });
   const complete = useMutation({
     mutationFn: () => {
       const payload: Record<string, string> = {};
@@ -83,7 +96,7 @@ function DetailView({ id }: { id: string }) {
   if (q.isError) return <FormError error={q.error} />;
   const c = q.data;
   const editable = manage && c.status === 'PLANNED';
-  const busy = attach.isPending || detach.isPending || mark.isPending;
+  const busy = attach.isPending || detach.isPending;
 
   const askComplete = () => {
     const missing = missingNames(c.attendees, names);
@@ -136,7 +149,7 @@ function DetailView({ id }: { id: string }) {
               cell: (a) =>
                 editable ? (
                   <label className="check-inline">
-                    <input type="checkbox" checked={a.present} disabled={busy} onChange={(e) => mark.mutate({ appId: a.applicationId, present: e.target.checked })} />
+                    <input type="checkbox" checked={shown[a.applicationId] ?? a.present} disabled={busy} onChange={(e) => mark.mutate({ appId: a.applicationId, present: e.target.checked })} />
                     <span>{t('ceremony.present')}</span>
                     <span className="sr"> {a.candidateName}</span>
                   </label>

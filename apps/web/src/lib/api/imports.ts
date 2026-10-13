@@ -1,4 +1,4 @@
-import { importCommitResult, importPreview, type ImportPreview } from '@iskcon/contracts';
+import { CONSENT_VERSION, importCommitResult, importPreview, type CommitImportBody, type ImportPreview } from '@iskcon/contracts';
 import type { z } from 'zod';
 import { apiUrl, request } from './request';
 
@@ -11,5 +11,9 @@ export const importsApi = {
     form.set('file', file);
     return request('/imports', { method: 'POST', form, schema: importPreview });
   },
-  commit: (id: string): Promise<ImportCommitResult> => request(`/imports/${id}/commit`, { method: 'POST', schema: importCommitResult }),
+  /** The caller has ticked the consent box; the server records which version of the text they agreed to. */
+  commit: (id: string): Promise<ImportCommitResult> => {
+    const body: CommitImportBody = { consent: { accepted: true, version: CONSENT_VERSION } };
+    return request(`/imports/${id}/commit`, { method: 'POST', body, schema: importCommitResult });
+  },
 };

@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+// API_URL is read when the app is BUILT (rewrites are compiled into the routes manifest): pass it as a build argument.
 const API_URL = (process.env.API_URL || 'http://localhost:4000').replace(/\/$/, '');
 
 const securityHeaders = [
@@ -13,6 +14,10 @@ const nextConfig = {
   // NEXT_DIST_DIR lets a second build live beside the default one (used by the e2e run).
   distDir: process.env.NEXT_DIST_DIR || '.next',
   reactStrictMode: true,
+  // The container image sets NEXT_STANDALONE=1: a self-contained server in .next/standalone (workspace packages included).
+  ...(process.env.NEXT_STANDALONE
+    ? { output: 'standalone', outputFileTracingRoot: new URL('../../', import.meta.url).pathname }
+    : {}),
   poweredByHeader: false,
   // @iskcon/contracts ships CommonJS; Next bundles it as-is.
   async rewrites() {

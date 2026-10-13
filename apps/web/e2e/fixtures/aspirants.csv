@@ -1,0 +1,13 @@
+﻿name,phone,email,groupName,mentorName,guruName,track,shelterDate,practiceSince
+রাধারাণী দাস,9830011111,radharani@example.org,নিউটাউন সঙ্গ,Mohan Biswas,HH Test Swami,FIRST,2025-03-01,
+हिमांशु शर्मा,+91 98300 22222,,दिल्ली संग,MOHAN@example.org,,,,
+Gopal Krishna,,gopal@example.org,,Mohan Biswas,HH Test Swami,first,14/03/2025,10-01-2024
+Bad Email,9830033333,not-an-email,,,,,,
+Unknown Mentor,9830044444,,,Nobody Here,,,,
+Unknown Guru,9830055555,,,,HH Nobody,,,
+"=HYPERLINK(""http://evil.example"",""click"")",9830066666,,,,,,,
+রাধারাণী দাস,9830011111,,,,,,,
+Existing Person,9830077777,existing@example.org,,,,,,
+Future Shelter,9830088888,,,,,,2999-01-01,
+No Contact,,,Sunday group,,,,,
+Bad Track,9830099999,,,,,THIRD,,

@@ -72,7 +72,10 @@ docker build -f apps/api/Dockerfile -t iskcon-api .     # build context is the r
 docker run --rm --env-file .env iskcon-api node dist/database/migrate.js   # migrations as a job
 ```
 
-The image runs as a non-root user, contains compiled code and production dependencies only, and has a health
+The web image is built the same way and needs the API address at build time:
+`docker build -f apps/web/Dockerfile --build-arg API_URL=http://api:4000 -t iskcon-web .` (details in `apps/web/README.md`).
+
+The API image runs as a non-root user, contains compiled code and production dependencies only, and has a health
 check on `/healthz`. `/readyz` also checks the database; use it for load-balancer readiness.
 
 ## Migrations

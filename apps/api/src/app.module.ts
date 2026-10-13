@@ -11,9 +11,13 @@ import { DeliveryModule } from './platform/delivery/delivery.module';
 import { EventsModule } from './platform/events/events.module';
 import { RequestContextService } from './platform/tenancy/request-context';
 import { TenancyModule } from './platform/tenancy/tenancy.module';
+import { FacetsModule } from './platform/facets/facets';
 import { ClockModule } from './platform/clock/clock.module';
 import { SecurityModule } from './platform/security/security.module';
 import { AuditModule } from './modules/audit';
+import { CandidatesModule } from './modules/candidates';
+import { ChecklistModule } from './modules/checklist';
+import { ViewsModule } from './modules/views';
 import { GurusModule } from './modules/gurus';
 import { IdentityModule } from './modules/identity';
 import { RulesModule } from './modules/rules';
@@ -48,12 +52,16 @@ import { HealthModule } from './platform/health/health.module';
     SecurityModule,
     TenancyModule,
     EventsModule,
+    FacetsModule,
     DeliveryModule,
     HealthModule,
     AuditModule,
     IdentityModule,
     GurusModule,
     RulesModule,
+    CandidatesModule,
+    ChecklistModule,
+    ViewsModule,
   ],
   providers: [
     {

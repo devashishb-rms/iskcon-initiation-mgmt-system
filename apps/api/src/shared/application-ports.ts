@@ -43,4 +43,6 @@ export abstract class ApplicationWorkflow {
   abstract close(applicationId: string, status: 'DECLINED' | 'WITHDRAWN' | 'COMPLETED', reason?: string): Promise<void>;
   /** Completion of a first-initiation ceremony: the date a second initiation is counted from (R-6). */
   abstract recordInitiation(applicationId: string, date: string): Promise<void>;
+  /** The president's reason for sending a file back, kept with the file where the mentor reads it. */
+  abstract addSendBackNote(applicationId: string, body: string): Promise<void>;
 }

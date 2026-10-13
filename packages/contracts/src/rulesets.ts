@@ -47,3 +47,7 @@ export const floorIssue = z.object({
   params: z.record(z.number()).optional(),
 });
 export type FloorIssue = z.infer<typeof floorIssue>;
+
+/** The GBC floor (constant) and the temple baseline's current values, for the rule editor. */
+export const ruleFloorResponse = z.object({ floor: ruleParams, baseline: ruleParams });
+export type RuleFloorResponse = z.infer<typeof ruleFloorResponse>;

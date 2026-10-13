@@ -73,7 +73,12 @@ export const updateFactsBody = z
 export type UpdateFactsBody = z.infer<typeof updateFactsBody>;
 
 export const changeGuruBody = z.object({ guruId: z.string().uuid().nullable() });
-export const advanceBody = z.object({ to: z.enum(['SHELTER', 'PREPARING']), reason: optionalText(500) });
+export const advanceBody = z.object({
+  to: z.enum(['SHELTER', 'PREPARING']),
+  /** Moving to SHELTER records the date the guru accepted the candidate in shelter (starts R-2). */
+  shelterDate: isoDate.optional(),
+  reason: optionalText(500),
+});
 export const submitApplicationBody = z.object({ readinessNote: text(4000) });
 export const createSecondApplicationBody = z.object({ guruId: z.string().uuid().optional() });
 
@@ -191,3 +196,9 @@ export const applicationDetail = z.object({
   actions: applicationActions,
 });
 export type ApplicationDetail = z.infer<typeof applicationDetail>;
+
+export const createCandidateResponse = z.object({
+  candidateId: z.string().uuid(),
+  applicationId: z.string().uuid(),
+});
+export type CreateCandidateResponse = z.infer<typeof createCandidateResponse>;

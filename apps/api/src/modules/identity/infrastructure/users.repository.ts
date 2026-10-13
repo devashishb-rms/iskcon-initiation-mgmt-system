@@ -3,11 +3,10 @@ import { and, eq, inArray, sql } from 'drizzle-orm';
 import type { Role } from '@iskcon/contracts';
 import { DbService } from '../../../database/database.module';
 import { userRoles, users } from '../../../database/schema';
+import type { UserWithRoles } from '../domain/user';
 
 export type UserRow = typeof users.$inferSelect;
-export interface UserWithRoles extends UserRow {
-  roles: Role[];
-}
+export type { UserWithRoles };
 
 @Injectable()
 export class UsersRepository {

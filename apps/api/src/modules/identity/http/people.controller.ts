@@ -11,7 +11,7 @@ import { zod } from '../../../common/zod.pipe';
 import { UnitOfWork } from '../../../database/database.module';
 import { UsersService } from '../application/users.service';
 import { SessionService } from '../application/session.service';
-import type { UserWithRoles } from '../infrastructure/users.repository';
+import type { UserWithRoles } from '../domain/user';
 
 const toDto = (u: UserWithRoles): PersonDto => ({
   id: u.id,

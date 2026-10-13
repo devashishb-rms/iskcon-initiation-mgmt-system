@@ -11,3 +11,5 @@ test-results/
 playwright-report/
 .DS_Store
 *.tsbuildinfo
+.api-e2e/
+next-env.d.ts

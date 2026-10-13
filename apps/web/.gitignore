@@ -1,0 +1,10 @@
+.next/
+.next-*/
+node_modules/
+test-results/
+playwright-report/
+tsconfig.tsbuildinfo
+next-env.d.ts
+e2e/.state/
+.api-e2e/
+e2e/.state-full/

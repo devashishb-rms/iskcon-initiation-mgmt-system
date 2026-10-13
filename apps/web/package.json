@@ -1,0 +1,43 @@
+{
+  "name": "@iskcon/web",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Initiation management web app (Next.js App Router) for ISKCON Newtown.",
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start -p 3000",
+    "lint": "eslint .",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "e2e": "playwright test"
+  },
+  "dependencies": {
+    "@iskcon/contracts": "workspace:*",
+    "@tanstack/react-query": "^5.90.0",
+    "next": "15.5.27",
+    "qrcode": "^1.5.4",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/js": "^9.39.5",
+    "@iskcon/rules-engine": "workspace:*",
+    "@playwright/test": "1.56.1",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/node": "^22.20.5",
+    "@types/qrcode": "^1.5.5",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@vitejs/plugin-react": "^4.7.0",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "15.5.27",
+    "jsdom": "^25.0.1",
+    "typescript": "~5.6.3",
+    "vitest": "^2.1.9"
+  }
+}

@@ -6,7 +6,8 @@ coverage/
 *.log
 .env
 .env.local
-storage/
+/apps/api/storage/
+/storage/
 test-results/
 playwright-report/
 .DS_Store

@@ -1,0 +1,94 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  ISKCON Initiation Management System on one new t3.micro (Ubuntu 24.04), installed without Docker by
+  deploy/aws-vm/install.sh. Creates: a security group (port 8080 from AllowedCidr), an instance role for
+  Session Manager (no SSH key needed), and the instance. Nothing else in the account is touched.
+
+Parameters:
+  BundleUrl:
+    Type: String
+    Description: >-
+      HTTPS address of iskcon-saas-<version>-linux-x64.tar.gz (the file next to it, with .sha256 added, must also exist).
+      Use the Releases page of the repository after running the "Server bundle" workflow on a v* tag.
+  RepoRef:
+    Type: String
+    Default: main
+    Description: Branch or tag of the repository that holds the installer scripts.
+  AdminName:
+    Type: String
+    Description: Full name of the first administrator.
+  AdminEmail:
+    Type: String
+    Description: Email of the first administrator (the one-time sign-in code is addressed to it).
+  AllowedCidr:
+    Type: String
+    Default: 0.0.0.0/0
+    Description: Who may open the web app on port 8080. Use your own IP as x.x.x.x/32 while it is plain HTTP.
+  InstanceType:
+    Type: String
+    Default: t3.micro
+    AllowedValues: [t3.micro, t3.small, t3.medium]
+  LatestUbuntuAmi:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/canonical/ubuntu/server/24.04/stable/current/amd64/hvm/ebs-gp3/ami-id
+
+Resources:
+  AppSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: ISKCON initiation system web port (no SSH; use Session Manager)
+      SecurityGroupIngress:
+        - { IpProtocol: tcp, FromPort: 8080, ToPort: 8080, CidrIp: !Ref AllowedCidr, Description: web app }
+
+  InstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - { Effect: Allow, Principal: { Service: ec2.amazonaws.com }, Action: "sts:AssumeRole" }
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+
+  InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles: [!Ref InstanceRole]
+
+  Server:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref LatestUbuntuAmi
+      InstanceType: !Ref InstanceType
+      IamInstanceProfile: !Ref InstanceProfile
+      SecurityGroupIds: [!GetAtt AppSecurityGroup.GroupId]
+      BlockDeviceMappings:
+        - DeviceName: /dev/sda1
+          Ebs: { VolumeSize: 20, VolumeType: gp3, Encrypted: true, DeleteOnTermination: true }
+      MetadataOptions: { HttpTokens: required }
+      Tags:
+        - { Key: Name, Value: iskcon-initiation-saas }
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          set -euxo pipefail
+          exec > >(tee /var/log/iskcon-bootstrap.log) 2>&1
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get update -y
+          apt-get install -y curl git ca-certificates xz-utils iproute2
+          git clone --depth 1 --branch '${RepoRef}' https://github.com/devashishb-rms/iskcon-initiation-mgmt-system.git /root/src
+          mkdir -p /root/bundle && cd /root/bundle
+          curl -fL '${BundleUrl}' -o "$(basename '${BundleUrl}')"
+          curl -fL '${BundleUrl}.sha256' -o "$(basename '${BundleUrl}').sha256"
+          ADD_SWAP=1 ADMIN_NAME='${AdminName}' ADMIN_EMAIL='${AdminEmail}' \
+            BUNDLE="/root/bundle/$(basename '${BundleUrl}')" bash /root/src/deploy/aws-vm/install.sh
+
+Outputs:
+  WebAddress:
+    Description: Open this once the instance has finished installing (about 5 minutes; progress in /var/log/iskcon-bootstrap.log).
+    Value: !Sub "http://${Server.PublicDnsName}:8080"
+  SessionManager:
+    Description: Console route to a shell on the server (no key pair needed); the sign-in code is in the API log.
+    Value: !Sub "https://console.aws.amazon.com/systems-manager/session-manager/${Server}"
+  SignInCodeCommand:
+    Value: "sudo journalctl -u iskcon-saas-api -n 50 --no-pager | grep -B1 'is your'"

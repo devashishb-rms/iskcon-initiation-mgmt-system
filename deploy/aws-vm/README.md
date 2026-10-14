@@ -72,6 +72,16 @@ Edit `/opt/iskcon-saas/shared/iskcon-saas.env`, then `sudo systemctl restart isk
 | `PUBLIC_WEB_URL`, `CORS_ORIGIN`, `COOKIE_SECURE=true` | When you put HTTPS in front (a domain with TLS), update all three. Plain HTTP on a port is fine for trying it out, not for real candidate data. |
 | `STORAGE_DRIVER=s3` + `S3_*` | Move documents to a bucket (see `docs/operations.md`). |
 
+## Or: a brand-new t3.micro in one step (CloudFormation)
+
+`cloudformation.yaml` creates a fresh t3.micro (Ubuntu 24.04, 20 GB encrypted disk), a security group that opens only
+port 8080 (to `AllowedCidr`), an instance role for Session Manager (no SSH key), and runs this installer on first
+boot. In the AWS console: CloudFormation, Create stack, Upload a template file, then fill in `BundleUrl` (the Releases
+download address of the bundle), `AdminName`, `AdminEmail` and `AllowedCidr` (your own IP as `x.x.x.x/32`). The stack's
+Outputs give the web address and a Session Manager link for reading the sign-in code. It costs a t3.micro plus the disk
+(about USD 8-10 a month outside the free tier); deleting the stack removes everything it created. The public address
+changes if the instance is stopped and started: attach an Elastic IP before relying on it.
+
 ## Upgrade, rollback, remove
 
 * **Upgrade:** build or download the newer bundle and run `install.sh` again with it. It unpacks a new release,

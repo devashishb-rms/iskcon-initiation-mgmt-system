@@ -3,7 +3,8 @@
 **/.next
 **/.turbo
 **/coverage
-**/storage
+apps/api/storage
+storage
 .git
 .github
 docs

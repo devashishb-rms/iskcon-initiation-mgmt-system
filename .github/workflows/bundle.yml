@@ -1,0 +1,33 @@
+name: Server bundle
+# Builds the no-Docker release bundle (deploy/aws-vm). Run it from the Actions tab ("Run workflow"), or push a tag
+# such as v0.1.0 to also publish it on the Releases page, where the server can download it with curl.
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: bash deploy/aws-vm/build-bundle.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: iskcon-saas-bundle
+          path: deploy/aws-vm/out/iskcon-saas-*
+          if-no-files-found: error
+      - name: Publish on the Releases page (tags only)
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" deploy/aws-vm/out/iskcon-saas-* --title "$GITHUB_REF_NAME" --generate-notes

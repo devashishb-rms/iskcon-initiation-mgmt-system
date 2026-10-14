@@ -21,8 +21,11 @@ nginx: conf.d/iskcon-saas.conf                 one extra server block on PUBLIC_
 * A Linux x86_64 (or arm64) server with systemd, root access, and outbound internet (Node download, packages).
 * A free TCP port for the public address (default **8080**) opened in the EC2 security group. Internal ports
   4100 (API) and 3100 (web) are bound to localhost and need no firewall rule.
-* The bundle `iskcon-saas-<version>-linux-x64.tar.gz` and its `.sha256`, built by `build-bundle.sh` or downloaded
-  from the repository's Releases page.
+* The bundle `iskcon-saas-<version>-linux-x64.tar.gz` and its `.sha256` (about 57 MB). Get it one of three ways:
+  1. GitHub: Actions tab, workflow **Server bundle**, Run workflow, then download the artifact `iskcon-saas-bundle`.
+  2. Push a tag (`git tag v0.1.0 && git push origin v0.1.0`): the same workflow also publishes it on the Releases page,
+     and the server can then fetch it directly with `curl -LO`.
+  3. Build it yourself with `deploy/aws-vm/build-bundle.sh` (needs pnpm and Node 22; about two minutes).
 
 A 1 GB machine is enough for the two services plus PostgreSQL (measured: API about 150 MB, web about 80 MB, PostgreSQL
 about 60 MB with the small profile), but it is shared with the prototype: use `ADD_SWAP=1`, and look at `free -m`

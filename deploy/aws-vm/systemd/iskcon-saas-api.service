@@ -1,0 +1,24 @@
+[Unit]
+Description=ISKCON Initiation Management System: API
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+User=@USER@
+WorkingDirectory=@APP_DIR@/current/api
+EnvironmentFile=@APP_DIR@/shared/iskcon-saas.env
+ExecStart=@NODE@ --max-old-space-size=200 dist/main.js
+Restart=on-failure
+RestartSec=3
+# Keeps a runaway process from starving the other application on this small machine.
+MemoryHigh=300M
+MemoryMax=400M
+CPUWeight=50
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=@APP_DIR@/shared
+
+[Install]
+WantedBy=multi-user.target

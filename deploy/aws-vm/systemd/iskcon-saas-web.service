@@ -1,0 +1,24 @@
+[Unit]
+Description=ISKCON Initiation Management System: web
+After=network.target iskcon-saas-api.service
+
+[Service]
+User=@USER@
+WorkingDirectory=@APP_DIR@/current/web/apps/web
+Environment=NODE_ENV=production
+Environment=PORT=@WEB_PORT@
+Environment=HOSTNAME=@WEB_BIND@
+Environment=NEXT_TELEMETRY_DISABLED=1
+ExecStart=@NODE@ --max-old-space-size=160 server.js
+Restart=on-failure
+RestartSec=3
+MemoryHigh=250M
+MemoryMax=320M
+CPUWeight=50
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

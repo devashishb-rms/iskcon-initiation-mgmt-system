@@ -35,6 +35,7 @@ pnpm test                # integration tests need Postgres (see docs/contributin
 * [Architecture](docs/architecture.md): modules, dependency rules, data, events
 * [HTTP API](docs/api.md)
 * [Operations](docs/operations.md): configuration, Docker, backups, go-live checklist
+* [Deploy beside an existing server without Docker](deploy/aws-vm/README.md)
 * [Contributing](docs/contributing.md): conventions and how to add a module or a rule
 * [Decisions](docs/adr): why it is built this way
 * [Backlog](docs/backlog.md): known gaps

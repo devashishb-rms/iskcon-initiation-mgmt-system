@@ -13,3 +13,4 @@ playwright-report/
 *.tsbuildinfo
 .api-e2e/
 next-env.d.ts
+deploy/aws-vm/out/

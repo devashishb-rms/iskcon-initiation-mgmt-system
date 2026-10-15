@@ -1,7 +1,15 @@
 import { Global, Module } from '@nestjs/common';
 import { ENV } from '../../config/config.module';
 import type { Env } from '../../config/env';
-import { ConsoleGateway, ConsoleSmsGateway, EmailGateway, SmsGateway, SmtpGateway, WebhookSmsGateway } from './gateways';
+import {
+  ConsoleGateway,
+  ConsoleSmsGateway,
+  EmailGateway,
+  LoggingEmailGateway,
+  SmsGateway,
+  SmtpGateway,
+  WebhookSmsGateway,
+} from './gateways';
 
 @Global()
 @Module({
@@ -10,8 +18,11 @@ import { ConsoleGateway, ConsoleSmsGateway, EmailGateway, SmsGateway, SmtpGatewa
     {
       provide: EmailGateway,
       inject: [ENV, ConsoleGateway],
-      useFactory: (env: Env, console: ConsoleGateway) =>
-        env.DELIVERY_MODE === 'live' ? new SmtpGateway(env) : console,
+      useFactory: (env: Env, console: ConsoleGateway) => {
+        if (env.DELIVERY_MODE !== 'live') return console;
+        const smtp = new SmtpGateway(env);
+        return env.DELIVERY_LOG_COPY ? new LoggingEmailGateway(smtp, console) : smtp;
+      },
     },
     {
       provide: SmsGateway,

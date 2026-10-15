@@ -69,6 +69,23 @@ export class SmtpGateway extends EmailGateway {
 }
 
 /**
+ * Sends through the real gateway and also logs a copy, as the console gateway does
+ * (DELIVERY_LOG_COPY=true). For demonstrations only: the log then holds live sign-in codes.
+ */
+export class LoggingEmailGateway extends EmailGateway {
+  constructor(
+    private readonly inner: EmailGateway,
+    private readonly console: ConsoleGateway,
+  ) {
+    super();
+  }
+  async send(message: EmailMessage): Promise<void> {
+    await this.console.send(message);
+    await this.inner.send(message);
+  }
+}
+
+/**
  * Posts {to, text} to a configured HTTP endpoint. India's SMS rules (DLT templates, sender ids)
  * live in the gateway behind that endpoint, not in this code.
  */

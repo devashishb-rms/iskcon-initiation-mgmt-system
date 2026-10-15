@@ -52,6 +52,7 @@ process with a readable message.
 | `SESSION_TTL_HOURS` | 12 | Session lifetime. |
 | `OTP_TTL_MINUTES`, `OTP_MAX_ATTEMPTS`, `OTP_MAX_PER_HOUR` | 10, 5, 5 | One-time-code limits. |
 | `DELIVERY_MODE` | console | `live` sends real mail and SMS. |
+| `DELIVERY_LOG_COPY` | false | With `live`, also log a copy of every email, sign-in codes included. Demonstration servers only. |
 | `SMTP_URL`, `MAIL_FROM` | | Outgoing mail. |
 | `SMS_WEBHOOK_URL`, `SMS_WEBHOOK_TOKEN` | | Optional SMS gateway (POST JSON `{to, text}`). Empty disables SMS. |
 | `STORAGE_DRIVER` | local | `local` or `s3`. Use `s3` for anything real. |

@@ -34,6 +34,8 @@ export const envSchema = z.object({
 
   /** 'console' logs messages (development, test). 'live' sends real mail and SMS. */
   DELIVERY_MODE: z.enum(['console', 'live']).default('console'),
+  /** With 'live': also log every email (sign-in codes included). Demonstration servers only. */
+  DELIVERY_LOG_COPY: bool.default('false'),
   SMTP_URL: z.string().optional(),
   MAIL_FROM: z.string().default('Initiation Office <no-reply@example.org>'),
   /** HTTP endpoint of the SMS gateway (POST JSON {to, text}). Empty = SMS disabled. */

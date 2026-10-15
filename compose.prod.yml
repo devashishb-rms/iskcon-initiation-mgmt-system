@@ -1,0 +1,44 @@
+# Production on one server (e.g. a small EC2 instance):
+#   cp .env.production.example .env      # fill in SITE_HOST and the secrets
+#   docker compose -f compose.prod.yml up -d --build
+# Caddy obtains a Let's Encrypt certificate for SITE_HOST (its DNS must point at this server; ports 80 and 443 open).
+# On a 1 GB instance, add swap before building: the web build needs more memory than that.
+# Stack: Caddy (HTTPS) -> web -> api -> postgres + documents volume. Only Caddy publishes ports.
+name: iskcon-initiation
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment: { POSTGRES_USER: iskcon, POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}", POSTGRES_DB: iskcon }
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+    healthcheck: { test: ["CMD-SHELL", "pg_isready -U iskcon -d iskcon"], interval: 5s, timeout: 3s, retries: 20 }
+  # Documents on a local volume (MinIO no longer publishes images). Owned by the API's non-root user (uid 10001).
+  storage-init:
+    image: busybox:1.37
+    command: chown -R 10001:10001 /data/documents
+    volumes: ["documents:/data/documents"]
+  api:
+    image: iskcon-api
+    build: { context: ., dockerfile: apps/api/Dockerfile }
+    restart: unless-stopped
+    depends_on:
+      postgres: { condition: service_healthy }
+      storage-init: { condition: service_completed_successfully }
+    env_file: [.env]
+    environment:
+      DATABASE_URL: postgresql://iskcon:${POSTGRES_PASSWORD}@postgres:5432/iskcon
+    volumes: ["documents:/data/documents"]
+  web:
+    image: iskcon-web
+    build: { context: ., dockerfile: apps/web/Dockerfile, args: { API_URL: "http://api:4000" } }
+    restart: unless-stopped
+    depends_on: [api]
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports: ["80:80", "443:443"]
+    environment: { SITE_HOST: "${SITE_HOST}" }
+    command: caddy reverse-proxy --from ${SITE_HOST} --to web:3000
+    volumes: ["caddydata:/data"]
+    depends_on: [web]
+volumes: { pgdata: {}, documents: {}, caddydata: {} }

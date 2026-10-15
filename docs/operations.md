@@ -75,6 +75,10 @@ docker run --rm --env-file .env iskcon-api node dist/database/migrate.js   # mig
 The web image is built the same way and needs the API address at build time:
 `docker build -f apps/web/Dockerfile --build-arg API_URL=http://api:4000 -t iskcon-web .` (details in `apps/web/README.md`).
 
+For a single server, `compose.prod.yml` runs Postgres, the API, the web app and Caddy (automatic HTTPS) with
+documents on a local volume; only ports 80 and 443 are published. Settings go in `.env` (template:
+`.env.production.example`). Usage is at the top of the file.
+
 The API image runs as a non-root user, contains compiled code and production dependencies only, and has a health
 check on `/healthz`. `/readyz` also checks the database; use it for load-balancer readiness.
 
